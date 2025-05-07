@@ -8,16 +8,28 @@
     body {
       margin: 0;
       padding: 0;
-      background: url('foto/fundo8.JPG') no-repeat center center fixed;
-      background-size: cover;
       font-family: Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .fundo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
     }
 
     .logo-itau {
       position: absolute;
       top: 20px;
       left: 10px;
-      height: 70px; /* Equivalente a h-12 (considerando 1rem = 4px) */
+      height: 70px;
+      z-index: 1;
     }
 
     .container {
@@ -31,6 +43,7 @@
       box-sizing: border-box;
       border-radius: 20px;
       max-width: 500px;
+      z-index: 1;
     }
 
     .label {
@@ -131,7 +144,10 @@
 </head>
 <body>
 
-  <!-- Adicionei a logo do Itaú aqui -->
+  <!-- Imagem de fundo -->
+  <img src="foto/fundo8.JPG" alt="Fundo" class="fundo">
+
+  <!-- Logo Itaú -->
   <img src="foto/itaucard.png" alt="Itaú Card" class="logo-itau">
 
   <div class="container">
